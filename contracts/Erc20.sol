@@ -10,11 +10,14 @@ contract Erc20Token {
     address public owner;
     uint256 private _totalSupply;
 
+    mapping(address => uint256) private _balance;
+    mapping(address => mapping(address => uint256)) private _allowed;
+
     constructor (string memory tokenName, string memory tokenSymbol, uint256 initialSupply) {
         _name = tokenName;
         _symbol = tokenSymbol;
         _decimals = 18;
-        _totalSupply = initialSupply * decimals;
+        _totalSupply = initialSupply * 10 ** _decimals;
     }
 
     function name() public view returns (string memory){
@@ -33,30 +36,30 @@ contract Erc20Token {
         return _totalSupply;
     }
 
-    function balanceOf(address _owner) public view returns (uint256 balance) {
-        return balance[_owner];
+    function balanceOf(address _owner) public view returns (uint256) {
+        return _balance[_owner];
     }
 
     function transfer(address _to, uint256 _value) public returns (bool success) {
-        balanceOf[msg.sender] -= _value;
-        balanceOf[_to] += _value;
+        _balance[msg.sender] -= _value;
+        _balance[_to] += _value;
         return true;
     }
 
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
-        approve[_from][msg.sender] -= _value;
-        balanceOf[_from]             -= _value;
-        balanceOf[_to]               += _value;
+        _allowed[_from][msg.sender] -= _value;
+        _balance[_from]             -= _value;
+        _balance[_to]               += _value;
         return true;
     }
 
     function approve(address _spender, uint256 _value) public returns (bool success) {
-        approve[msg.sender][_spender] = _value;
+        _allowed[msg.sender][_spender] = _value;
         return true;
     }
 
     function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
-        return approve[_owner][_spender];
+        return _allowed[_owner][_spender];
     }
     
 }
