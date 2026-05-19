@@ -16,10 +16,10 @@ contract FactoryContract {
     event TokenCreated( string name, string symbol, uint8 decimals, address indexed creator);
 
     function createToken(string memory _name, string memory _symbol) public {
-        EventToken newToken = new EventToken(_name, _symbol);
+        Erc20Token newToken = new  Erc20Token(_name, _symbol);
         uint8 tokenDecimals = newToken.decimals();
 
-        tokens.push(Token({
+        tokens.push(Tokens({
             name: _name,
             symbol: _symbol,
             decimals: tokenDecimals,

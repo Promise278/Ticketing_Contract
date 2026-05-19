@@ -17,11 +17,11 @@ contract Erc20Token {
         _totalSupply = initialSupply * decimals;
     }
 
-    function name() public view returns (string){
+    function name() public view returns (string memory){
         return _name;
     }
 
-    function symbol() public view returns (string){
+    function symbol() public view returns (string memory){
         return _symbol;
     }
 
