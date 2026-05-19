@@ -16,7 +16,7 @@ contract FactoryContract {
     event TokenCreated( string name, string symbol, uint8 decimals, address indexed creator);
 
     function createToken(string memory _name, string memory _symbol) public {
-        Erc20Token newToken = new  Erc20Token(_name, _symbol);
+        Erc20Token newToken = new  Erc20Token(_name, _symbol, 1000000);
         uint8 tokenDecimals = newToken.decimals();
 
         tokens.push(Tokens({
@@ -25,7 +25,7 @@ contract FactoryContract {
             decimals: tokenDecimals,
             creator: msg.sender
         }));
-        emit TokenCreated( _name, _symbol, tokenDecimals);
+        emit TokenCreated( _name, _symbol, tokenDecimals, address(newToken));
     }
 
     function getAllToken() public view returns (Tokens[] memory) {

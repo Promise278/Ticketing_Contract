@@ -18,6 +18,7 @@ contract Erc20Token {
         _symbol = tokenSymbol;
         _decimals = 18;
         _totalSupply = initialSupply * 10 ** _decimals;
+        _balance[msg.sender] = _totalSupply;
     }
 
     function name() public view returns (string memory){

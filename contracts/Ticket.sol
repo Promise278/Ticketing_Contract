@@ -16,7 +16,7 @@ contract TicketFactory {
 
     function createEvent( string memory _name, string memory _symbol, uint256 _price, uint256 _maxTickets, uint256 _date, string memory _location) public {
       require(bytes(_name).length > 0, "Event name required");
-      require(_price.length > 0, "Event Price is required");
+      require(_price > 0, "Event Price is required");
       
       events.push(Event({
         name: _name,
@@ -38,13 +38,9 @@ contract TicketFactory {
       return events[_index];
     }
 
-    function updateEvent(uint256 _index) public view returns (Event memory) {
+    function deleteEvent(uint256 _index) public returns (Event memory) {
       require(_index < events.length, "Event does not exist");
-      
-    }
-
-    function deleteEvent(uint256 _index) public view returns (Event memory) {
-      require(_index < events.length, "Event does not exist");
-
+      Event storage eventItem = events[_index];
+      delete events[_index];
     }
 }
