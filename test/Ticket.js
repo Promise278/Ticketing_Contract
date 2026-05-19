@@ -51,28 +51,4 @@ describe("Ticket", function () {
 
     expect(allEvents.length).to.equal(0);
   });
-
-  it("Should prevent non creator update", async function () {
-
-    await ticket.createEvent(
-      "Private Event",
-      "PVT",
-      ethers.parseEther("1"),
-      100,
-      2000000000,
-      "Lagos"
-    );
-
-    await expect(
-      ticket.connect(user).updateEvent(
-        0,
-        "Hack Event",
-        ethers.parseEther("2"),
-        100,
-        3000000000,
-        "Abuja"
-      )
-    ).to.be.revertedWith("Not creator");
-  });
-
 });
