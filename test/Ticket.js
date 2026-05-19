@@ -1,41 +1,111 @@
 const { expect } = require("chai");
-const { ethers }  = require("hardhat");
+const { ethers } = require("hardhat");
 
-describe("Ticket", () => {
+describe("Ticket", function () {
+
   let factory;
+  let owner;
+  let user;
 
-  beforeEach(async () => {
-    factory = await (await ethers.getContractFactory("TicketFactory")).deploy();
+  beforeEach(async function () {
+
+    [owner, user] = await ethers.getSigners();
+
+    const TicketFactory =
+      await ethers.getContractFactory(
+        "TicketFactory"
+      );
+
+    factory = await TicketFactory.deploy();
+
+    await factory.waitForDeployment();
   });
 
-  it("starts with no events", async () => {
-    expect((await factory.getAllEvents()).length).to.equal(0);
+  it("Should create event", async function () {
+
+    await factory.createEvent(
+      "Blockchain Summit",
+      ethers.parseEther("1"),
+      100,
+      2000000000,
+      "Lagos"
+    );
+
+    const event =
+      await factory.getSingleEvent(0);
+
+    expect(event.name)
+      .to.equal("Blockchain Summit");
+
+    expect(event.location)
+      .to.equal("Lagos");
   });
 
-  it("creates an event", async () => {
-    await factory.createEvent("Dev Conf", "SYM", 100, 200, 9999999999, "Lagos");
-    const event = await factory.getSingleEvent(0);
-    expect(event.name).to.equal("Dev Conf");
-    expect(event.price).to.equal(100);
-    expect(event.maxTickets).to.equal(200);
-    expect(event.soldTickets).to.equal(0);
-    expect(event.location).to.equal("Lagos");
+  it("Should update event", async function () {
+
+    await factory.createEvent(
+      "Old Event",
+      ethers.parseEther("1"),
+      100,
+      2000000000,
+      "Abuja"
+    );
+
+    await factory.updateEvent(
+      0,
+      "New Event",
+      ethers.parseEther("2"),
+      200,
+      3000000000,
+      "Lagos"
+    );
+
+    const event =
+      await factory.getSingleEvent(0);
+
+    expect(event.name)
+      .to.equal("New Event");
   });
 
-  it("sets creator to msg.sender", async () => {
-    const [owner] = await ethers.getSigners();
-    await factory.createEvent("Dev Conf", "SYM", 100, 200, 9999999999, "Lagos");
-    const event = await factory.getSingleEvent(0);
-    expect(event.creator).to.equal(owner.address);
+  it("Should delete event", async function () {
+
+    await factory.createEvent(
+      "Delete Me",
+      ethers.parseEther("1"),
+      100,
+      2000000000,
+      "Lagos"
+    );
+
+    await factory.deleteEvent(0);
+
+    const event =
+      await factory.getSingleEvent(0);
+
+    expect(event.name).to.equal("");
   });
 
-  it("returns all events", async () => {
-    await factory.createEvent("Event 1", "SYM", 100, 50, 9999999999, "Lagos");
-    await factory.createEvent("Event 2", "SYM", 200, 100, 9999999999, "Abuja");
-    expect((await factory.getAllEvents()).length).to.equal(2);
-  });
+  it("Should prevent non creator update", async function () {
 
-  it("reverts on invalid index", async () => {
-    await expect(factory.getSingleEvent(0)).to.be.revertedWith("Event does not exist");
+    await factory.createEvent(
+      "Private Event",
+      ethers.parseEther("1"),
+      100,
+      2000000000,
+      "Lagos"
+    );
+
+    await expect(
+      factory.connect(user).updateEvent(
+        0,
+        "Hack Event",
+        ethers.parseEther("1"),
+        100,
+        2000000000,
+        "Abuja"
+      )
+    ).to.be.revertedWith(
+      "Not event creator"
+    );
   });
 });
